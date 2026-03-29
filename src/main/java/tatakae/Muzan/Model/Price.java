@@ -1,9 +1,11 @@
 package tatakae.Muzan.Model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -23,7 +25,8 @@ public class Price {
 	@NotBlank
 	private String website;
 	@Positive
-	private int price;
+	@Column(precision = 10, scale = 2)
+	private BigDecimal price;
 	private LocalDateTime date;
 	@JoinColumn(name="product_id")
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -48,11 +51,11 @@ public class Price {
 		this.website = website;
 	}
 
-	public int getPrice() {
+	public BigDecimal getPrice() {
 		return price;
 	}
 
-	public void setPrice(int price) {
+	public void setPrice(BigDecimal price) {
 		this.price = price;
 	}
 

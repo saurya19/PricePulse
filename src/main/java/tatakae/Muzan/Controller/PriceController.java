@@ -21,7 +21,7 @@ import tatakae.Muzan.DTO.PriceRequest;
 import tatakae.Muzan.DTO.PriceResponse;
 import tatakae.Muzan.Model.Price;
 import tatakae.Muzan.Model.Product;
-import tatakae.Muzan.Scraper.MockAmazonScraper;
+import tatakae.Muzan.Scraper.BookVillaScraper;
 import tatakae.Muzan.Service.PriceService;
 import tatakae.Muzan.repository.PriceRepository;
 import tatakae.Muzan.repository.ProductRepository;
@@ -31,8 +31,10 @@ import tatakae.Muzan.repository.ProductRepository;
 @RequestMapping("/prices")
 public class PriceController {
 
-	@Autowired
-	private PriceService priceService;
+	private final PriceService priceService;
+	public PriceController(PriceService priceService) {
+		this.priceService = priceService;
+	}
 	
 	private final static Logger log = LoggerFactory.getLogger(PriceController.class);
 	

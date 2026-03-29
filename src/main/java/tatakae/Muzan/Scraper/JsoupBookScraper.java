@@ -1,5 +1,7 @@
 package tatakae.Muzan.Scraper;
 
+import java.math.BigDecimal;
+
 import org.jsoup.Jsoup;
 import tatakae.Muzan.Exception.ScraperException;
 import org.jsoup.nodes.Document;
@@ -14,7 +16,7 @@ public class JsoupBookScraper implements PriceScraper {
 	private static final Logger log = LoggerFactory.getLogger(JsoupBookScraper.class);
 	
     @Override
-    public int fetchPrice(String productUrl) {
+    public BigDecimal fetchPrice(String productUrl) {
 
     	log.info("Scraper started for URL: {}", productUrl);
     	
@@ -31,7 +33,7 @@ public class JsoupBookScraper implements PriceScraper {
             }
             
             String priceText = priceElement.text().replace("£", "");
-            int price = (int) Double.parseDouble(priceText);
+            BigDecimal price =  new BigDecimal(priceText);
             log.info("Scraper success. Website: {}, Price: {}", getWebsiteName(), price);
             
             return price;

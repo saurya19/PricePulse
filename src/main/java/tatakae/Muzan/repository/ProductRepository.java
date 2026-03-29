@@ -9,5 +9,6 @@ import tatakae.Muzan.Model.Product;
 public interface ProductRepository extends JpaRepository<Product, Integer>{
 
 	List<Product> findByCategory(String category);
+	boolean existsByUrl(String url);
 	
 }

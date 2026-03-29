@@ -1,15 +1,16 @@
 package tatakae.Muzan.DTO;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class PriceResponse {
 
 	private String productName;
 	private String website;
-	private int price;
+	private BigDecimal price;
 	private LocalDateTime time;
 	
-	public PriceResponse(String productName, String website, int price, LocalDateTime time) {
+	public PriceResponse(String productName, String website, BigDecimal price, LocalDateTime time) {
 		super();
 		this.productName = productName;
 		this.website = website;
@@ -25,7 +26,7 @@ public class PriceResponse {
 		return website;
 	}
 
-	public int getPrice() {
+	public BigDecimal getPrice() {
 		return price;
 	}
 

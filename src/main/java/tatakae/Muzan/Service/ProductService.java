@@ -17,23 +17,26 @@ import tatakae.Muzan.repository.ProductRepository;
 @Service
 public class ProductService {
 
-	@Autowired
-	private ProductRepository productRepo;
+	
+	private final ProductRepository productRepo;
+	public ProductService(ProductRepository productRepo) {
+		this.productRepo = productRepo;
+	}
 	
 	
-	public Product addingProduct(Product product) {
+	public Product addProduct(Product product) {
 		
 		return productRepo.save(product);
 	}
 	
-	public Page<Product> gettingAllProduct(int page, int size){
+	public Page<Product> getAllProduct(int page, int size){
 		
 		Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
 		return productRepo.findAll(pageable);
 		
 	}
 	
-	public List<Product> GettingByCategory(String category){
+	public List<Product> getByCategory(String category){
 		
 		return productRepo.findByCategory(category);
 		
@@ -42,8 +45,10 @@ public class ProductService {
 	public ProductResponse convertToProductResponse(Product product) {
 		return new ProductResponse(product.getId(),
 					product.getName(),
-					product.getBrand(),
-					product.getCategory()
+					product.getCategory(),
+					product.getRating(),
+					product.getImageURL(),
+					product.getDescription()
 					);
 	}
 	

@@ -3,16 +3,20 @@ package tatakae.Muzan.DTO;
 public class ProductResponse {
 	
 	private int productId;
+	private int rating;
 	private String name;
-	private String brand;
-	private String Category;
+	private String category;
+	private String imageURL;
+	private String description;
 	
-	public ProductResponse(int productId, String name, String brand, String category) {
+	public ProductResponse(int productId, String name, String category, int rating, String imageURL, String description) {
 		super();
 		this.productId = productId;
 		this.name = name;
-		this.brand = brand;
-		Category = category;
+		this.category = category;
+		this.rating = rating;
+		this.imageURL = imageURL;
+		this.description = description;
 	}
 
 	public int getProductId() {
@@ -23,13 +27,20 @@ public class ProductResponse {
 		return name;
 	}
 
-	public String getBrand() {
-		return brand;
+	public String getCategory() {
+		return category;
 	}
 
-	public String getCategory() {
-		return Category;
+	public int getRating() {
+		return rating;
 	}
-	
+
+	public String getImageURL() {
+		return imageURL;
+	}
+
+	public String getDescription() {
+		return description;
+	}
 
 }

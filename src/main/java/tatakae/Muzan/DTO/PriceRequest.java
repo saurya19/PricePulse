@@ -1,9 +1,11 @@
 package tatakae.Muzan.DTO;
 
+import java.math.BigDecimal;
+
 public class PriceRequest {
 
 	private String website;
-	private int price;
+	private BigDecimal price;
 		
 	public String getWebsite() {
 		return website;
@@ -11,10 +13,10 @@ public class PriceRequest {
 	public void setWebsite(String website) {
 		this.website = website;
 	}
-	public int getPrice() {
+	public BigDecimal getPrice() {
 		return price;
 	}
-	public void setPrice(int price) {
+	public void setPrice(BigDecimal price) {
 		this.price = price;
 	}
 	

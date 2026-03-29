@@ -1,5 +1,6 @@
 package tatakae.Muzan.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import tatakae.Muzan.Exception.ProductNotFoundException;
 import java.util.List;
@@ -24,16 +25,19 @@ import tatakae.Muzan.repository.ProductRepository;
 @Service
 public class PriceService {
 	
-	@Autowired
-	private ProductRepository productRepo; 
-	@Autowired
-	private PriceRepository priceRepo;
-	@Autowired
-	private List<PriceScraper> scrapers;
+	private final ProductRepository productRepo; 
+	private final PriceRepository priceRepo;
+	private final List<PriceScraper> scrapers;
+
+	public PriceService(ProductRepository productRepo, PriceRepository priceRepo, List<PriceScraper> scrapers) {
+	    this.productRepo = productRepo;
+	    this.priceRepo = priceRepo;
+	    this.scrapers = scrapers;
+	}
 	
 	private static final Logger log = LoggerFactory.getLogger(PriceService.class);
 
-	public Price addPrice(int productId, String website, int priceVal) {
+	public Price addPrice(int productId, String website, BigDecimal priceVal) {
 		Product product = productRepo.findById(productId)
 			    .orElseThrow(() -> new ProductNotFoundException(productId));
 		log.info("Saving Price for productId {} from website {} whose price is {}", productId, website, priceVal);
@@ -79,7 +83,7 @@ public class PriceService {
 	    for (PriceScraper scraper : scrapers) {
 	    	try {
 	    		log.info("Scraping started for website {}", scraper.getWebsiteName());
-	    		int fetchedPrice = scraper.fetchPrice(product.getUrl());
+	    		BigDecimal fetchedPrice = scraper.fetchPrice(product.getUrl());
 		        addPrice(productId, scraper.getWebsiteName(), fetchedPrice);
 		        log.info("Successfully Scraped price for website {}", scraper.getWebsiteName());
 	    	}
@@ -93,7 +97,8 @@ public class PriceService {
 	@Scheduled(fixedRateString = "${price.scrape.interval}")
 	public void autoScrapePrice() {
 
-	    List<Product> products = productRepo.findAll();
+		Pageable pageable = PageRequest.of(0,20);
+	    List<Product> products = productRepo.findAll(pageable).getContent();
 
 	    log.info("Scheduler started at {}", LocalDateTime.now());
 	    

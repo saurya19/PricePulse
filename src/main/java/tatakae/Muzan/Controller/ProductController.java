@@ -24,14 +24,17 @@ import tatakae.Muzan.repository.ProductRepository;
 @RequestMapping("/products")
 public class ProductController {
 	
-	 @Autowired
-	 private ProductService productService;
+	 
+	 private final ProductService productService;
+	 public ProductController(ProductService productService) {
+		 this.productService = productService;
+	 }
 
 	 // POST /products
-	 @RequestMapping
+	 @PostMapping
 	 public ProductResponse addProduct(@Valid @RequestBody Product product) {
 
-	     Product savedProduct = productService.addingProduct(product);
+	     Product savedProduct = productService.addProduct(product);
 
 	     return productService.convertToProductResponse(savedProduct);
 	 }
@@ -42,7 +45,7 @@ public class ProductController {
 	         @RequestParam(defaultValue = "0") int page,
 	         @RequestParam(defaultValue = "5") int size) {
 
-	     Page<Product> productPage = productService.gettingAllProduct(page, size);
+	     Page<Product> productPage = productService.getAllProduct(page, size);
 
 	     return productPage.map(product ->
 	             productService.convertToProductResponse(product));
@@ -52,7 +55,7 @@ public class ProductController {
 	 @GetMapping("/category/{category}")
 	 public List<ProductResponse> getByCategory(@PathVariable String category) {
 
-	     List<Product> products = productService.GettingByCategory(category);
+	     List<Product> products = productService.getByCategory(category);
 
 	     return products.stream()
 	             .map(product -> productService.convertToProductResponse(product))

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,17 +18,27 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    
     @NotBlank
     private String name;
-    @NotBlank
-    private String brand;
+    
     @NotBlank
     private String category;
+    
     private String url;
+    
+    private String imageURL;
+    
+    @Column(columnDefinition= "TEXT")
+    private String description;
+    
+    private int rating;
 
     @OneToMany(mappedBy ="product")
     @JsonIgnore
     private List<Price> prices;
+    
+    
 
     public Product() {}
 
@@ -45,16 +56,8 @@ public class Product {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getBrand() {
-        return brand;
-    }
-
-    public void setBrand(String brand) {
-        this.brand = brand;
-    }
-
+    } 
+    
     public String getCategory() {
         return category;
     }
@@ -77,5 +80,29 @@ public class Product {
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	public String getImageURL() {
+		return imageURL;
+	}
+
+	public void setImageURL(String imageURL) {
+		this.imageURL = imageURL;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public int getRating() {
+		return rating;
+	}
+
+	public void setRating(int rating) {
+		this.rating = rating;
 	}
 }

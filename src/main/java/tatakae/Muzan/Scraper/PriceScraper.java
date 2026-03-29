@@ -1,8 +1,10 @@
 package tatakae.Muzan.Scraper;
 
+import java.math.BigDecimal;
+
 public interface PriceScraper {
 
-	int fetchPrice(String productURL);
+	BigDecimal fetchPrice(String productURL);
 	String getWebsiteName();
 	
 }
