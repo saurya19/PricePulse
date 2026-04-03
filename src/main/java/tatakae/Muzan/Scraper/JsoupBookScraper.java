@@ -1,6 +1,7 @@
 package tatakae.Muzan.Scraper;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import org.jsoup.Jsoup;
 import tatakae.Muzan.Exception.ScraperException;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Component;
 public class JsoupBookScraper implements PriceScraper {
 
 	private static final Logger log = LoggerFactory.getLogger(JsoupBookScraper.class);
+	
+	private static final BigDecimal GBP_TO_INR = new BigDecimal("107.00");
 	
     @Override
     public BigDecimal fetchPrice(String productUrl) {
@@ -32,11 +35,14 @@ public class JsoupBookScraper implements PriceScraper {
                 throw new ScraperException("Failed to scrape from " + getWebsiteName());
             }
             
-            String priceText = priceElement.text().replace("£", "");
-            BigDecimal price =  new BigDecimal(priceText);
-            log.info("Scraper success. Website: {}, Price: {}", getWebsiteName(), price);
-            
-            return price;
+            String priceText = priceElement.text()
+                    .replace("£", "")
+                    .replace("Â", "")
+                    .trim();
+            BigDecimal gbpPrice = new BigDecimal(priceText);
+            BigDecimal inrPrice = gbpPrice.multiply(GBP_TO_INR).setScale(2, RoundingMode.HALF_UP);
+            log.info("Scraper success. GBP: {}, INR: {}", gbpPrice, inrPrice);
+            return inrPrice;
         } 
         catch (Exception e) {
         	

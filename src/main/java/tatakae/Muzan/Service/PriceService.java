@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import tatakae.Muzan.Exception.ProductNotFoundException;
 import java.util.List;
 
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +29,13 @@ public class PriceService {
 	private final ProductRepository productRepo; 
 	private final PriceRepository priceRepo;
 	private final List<PriceScraper> scrapers;
+	private final PriceAlertService alertService;
 
-	public PriceService(ProductRepository productRepo, PriceRepository priceRepo, List<PriceScraper> scrapers) {
+	public PriceService(ProductRepository productRepo, PriceRepository priceRepo, List<PriceScraper> scrapers,PriceAlertService alertService) {
 	    this.productRepo = productRepo;
 	    this.priceRepo = priceRepo;
 	    this.scrapers = scrapers;
+	    this.alertService = alertService;
 	}
 	
 	private static final Logger log = LoggerFactory.getLogger(PriceService.class);
@@ -113,7 +116,8 @@ public class PriceService {
 	        	log.error("Failed to update product ID: {}", product.getId(), e);
 	        }
 	    }
-	    log.info("Auto scrape cycle completed at {}", LocalDateTime.now());;
+	    log.info("Auto scrape cycle completed at {}", LocalDateTime.now());
+	    alertService.checkAndTriggerAlerts();
 	}
 
 	public PriceResponse convertToResponse(Price price) {

@@ -10,7 +10,7 @@ public class BookVillaScraper implements PriceScraper{
 
 	@Override
 	public BigDecimal fetchPrice(String productURL) {
-		return new BigDecimal(300 + new Random().nextInt(901));
+		return new BigDecimal(2140 + new Random().nextInt(4279));
 	}
 	
 	@Override
