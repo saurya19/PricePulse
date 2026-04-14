@@ -2,44 +2,62 @@ package tatakae.pricepulse.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import tatakae.pricepulse.model.PriceAlert;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
 @Service
 public class EmailService {
 
-	private static final Logger log = LoggerFactory.getLogger(EmailService.class);
-	
-	private final JavaMailSender mailSender;
-	
-	public EmailService(JavaMailSender mailSender) {
-		this.mailSender = mailSender;
-	}
-	
-	public  void sendPriceAlert(PriceAlert alert, String currentPrice, String website) {
-		try {
-			
-			SimpleMailMessage message = new SimpleMailMessage();
-			message.setTo(alert.getEmail());
-			message.setFrom(System.getenv("MAIL_USERNAME"));
-			message.setSubject("PricePulse Alert --" + alert.getProduct().getName());
-			message.setText(
-					"Good news! The price you were tracking has dropped.\n\n" +
-			                "Book: " + alert.getProduct().getName() + "\n" +
-			                "Your target price: " + alert.getTargetPrice() + "\n" +
-			                "Current price on " + website + ": " + currentPrice + "\n\n" +
-			                "Visit books.toscrape.com to buy now.\n\n" +
-			                "— PricePulse"
-					);
-			mailSender.send(message);
-			log.info("Alert Email sent to {} for product {}", alert.getEmail(), alert.getProduct().getName());
-			
-		}catch(Exception e) {
-			log.error("Failed to send Email to {}:{}", alert.getEmail(), e.getMessage());
-		}
-	}
-	
+    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
+
+    @Value("${RESEND_API_KEY}")
+    private String apiKey;
+
+    private final HttpClient client = HttpClient.newHttpClient();
+
+    public void sendPriceAlert(PriceAlert alert, String currentPrice, String website) {
+        try {
+
+            String jsonBody = """
+            {
+              "from": "onboarding@resend.dev",
+              "to": ["%s"],
+              "subject": "PricePulse Alert -- %s",
+              "html": "<p>Good news! The price dropped.</p>
+                       <p><b>Book:</b> %s</p>
+                       <p><b>Target Price:</b> %s</p>
+                       <p><b>Current Price:</b> %s</p>
+                       <p><b>Website:</b> %s</p>"
+            }
+            """.formatted(
+                    alert.getEmail(),
+                    alert.getProduct().getName(),
+                    alert.getProduct().getName(),
+                    alert.getTargetPrice(),
+                    currentPrice,
+                    website
+            );
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.resend.com/emails"))
+                    .header("Authorization", "Bearer " + apiKey)
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            log.info("Resend response: {}", response.body());
+
+        } catch (Exception e) {
+            log.error("Failed to send email via Resend: {}", e.getMessage());
+        }
+    }
 }
