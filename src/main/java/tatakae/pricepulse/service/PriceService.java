@@ -5,13 +5,11 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.context.annotation.Lazy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.event.EventListener;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +17,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import tatakae.pricepulse.dto.BuySuggestionResponse;
-import tatakae.pricepulse.dto.PriceRequest;
 import tatakae.pricepulse.dto.PriceResponse;
 import tatakae.pricepulse.exception.ProductNotFoundException;
 import tatakae.pricepulse.model.Price;
@@ -126,12 +123,6 @@ public class PriceService {
 		autoScrapeAllProducts();
 	}
 
-	// ✅ Runs once on startup after app is fully ready (products already imported)
-	@EventListener(ApplicationReadyEvent.class)
-	public void scrapeOnStartup() {
-		log.info("Startup price scrape triggered after app ready");
-		autoScrapeAllProducts();
-	}
 	
 	public BuySuggestionResponse getBuySuggestion(int productId) {
 		Product product = productRepo.findById(productId)
