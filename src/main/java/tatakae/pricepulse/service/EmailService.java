@@ -24,6 +24,7 @@ public class EmailService {
 			
 			SimpleMailMessage message = new SimpleMailMessage();
 			message.setTo(alert.getEmail());
+			message.setFrom(System.getenv("MAIL_USERNAME"));
 			message.setSubject("PricePulse Alert --" + alert.getProduct().getName());
 			message.setText(
 					"Good news! The price you were tracking has dropped.\n\n" +
