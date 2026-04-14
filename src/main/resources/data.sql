@@ -2,7 +2,7 @@
 -- 20 products with prices from all 3 scrapers
 -- Price range: ₹2140 to ₹6500
 
-INSERT INTO product (name, category, url, image_url, description, rating) VALUES
+INSERT INTO product (name, category, url, imageURL, description, rating) VALUES
 ('A Light in the Attic', 'Poetry', 'https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html', 'https://books.toscrape.com/media/cache/fe/72/fe72f0532301ec28892ae79a629a293c.jpg', 'A whimsical collection of poems and drawings that will delight readers of all ages.', 3),
 ('Tipping the Velvet', 'Historical Fiction', 'https://books.toscrape.com/catalogue/tipping-the-velvet_999/index.html', 'https://books.toscrape.com/media/cache/08/e9/08e94f3731d7d6b760dfbfbc02ca5c62.jpg', 'A passionate story of love and identity in Victorian London.', 1),
 ('Soumission', 'Fiction', 'https://books.toscrape.com/catalogue/soumission_998/index.html', 'https://books.toscrape.com/media/cache/ee/cf/eecfe998905e455df12064dba399c98b.jpg', 'A provocative novel about politics, religion and society in near-future France.', 1),
