@@ -100,7 +100,7 @@ public class PriceService {
 
 	// ✅ Extracted shared method — used by both scheduler and startup
 	public void autoScrapeAllProducts() {
-		List<Product> products = productRepo.findAll(); // removed 20-product limit
+		List<Product> products = productRepo.findAll(PageRequest.of(0, 20)).getContent(); 
 		log.info("Scrape started at {} for {} products", LocalDateTime.now(), products.size());
 
 		for (Product product : products) {
