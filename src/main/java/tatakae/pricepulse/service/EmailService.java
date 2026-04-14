@@ -17,7 +17,7 @@ public class EmailService {
 
     private static final Logger log = LoggerFactory.getLogger(EmailService.class);
 
-    @Value("${RESEND_API_KEY}")
+    @Value("${resend.api.key}")
     private String apiKey;
 
     private final HttpClient client = HttpClient.newHttpClient();
