@@ -1,9 +1,7 @@
-FROM eclipse-temurin:21-jdk-alpine
+FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
 COPY target/pricepulse-0.0.1-SNAPSHOT.jar app.jar
 
-EXPOSE 8080
-
-ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=prod", "app.jar"]
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=demo", "app.jar"]
