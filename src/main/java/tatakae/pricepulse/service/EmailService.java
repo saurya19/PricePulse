@@ -25,25 +25,24 @@ public class EmailService {
     public void sendPriceAlert(PriceAlert alert, String currentPrice, String website) {
         try {
 
-            String jsonBody = """
-            {
-              "from": "onboarding@resend.dev",
-              "to": ["%s"],
-              "subject": "PricePulse Alert -- %s",
-              "html": "<p>Good news! The price dropped.</p>
-                       <p><b>Book:</b> %s</p>
-                       <p><b>Target Price:</b> %s</p>
-                       <p><b>Current Price:</b> %s</p>
-                       <p><b>Website:</b> %s</p>"
-            }
-            """.formatted(
-                    alert.getEmail(),
-                    alert.getProduct().getName(),
-                    alert.getProduct().getName(),
-                    alert.getTargetPrice(),
-                    currentPrice,
-                    website
-            );
+        	String safeName = alert.getProduct().getName().replace("\"", "\\\"");
+
+        	String jsonBody = String.format(
+        	        "{ \"from\": \"onboarding@resend.dev\", " +
+        	        "\"to\": [\"%s\"], " +
+        	        "\"subject\": \"PricePulse Alert -- %s\", " +
+        	        "\"html\": \"<p>Good news! The price dropped.</p>" +
+        	        "<p><b>Book:</b> %s</p>" +
+        	        "<p><b>Target Price:</b> %s</p>" +
+        	        "<p><b>Current Price:</b> %s</p>" +
+        	        "<p><b>Website:</b> %s</p>\" }",
+        	        alert.getEmail(),
+        	        safeName,
+        	        safeName,
+        	        alert.getTargetPrice(),
+        	        currentPrice,
+        	        website
+        	);
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.resend.com/emails"))
