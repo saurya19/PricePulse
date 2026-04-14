@@ -8,8 +8,10 @@ import java.util.List;
 import org.springframework.context.annotation.Lazy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -34,7 +36,7 @@ public class PriceService {
 	private final List<PriceScraper> scrapers;
 	private final PriceAlertService alertService;
 
-	public PriceService(ProductRepository productRepo, PriceRepository priceRepo, List<PriceScraper> scrapers,@Lazy PriceAlertService alertService) {
+	public PriceService(ProductRepository productRepo, PriceRepository priceRepo, List<PriceScraper> scrapers, @Lazy PriceAlertService alertService) {
 	    this.productRepo = productRepo;
 	    this.priceRepo = priceRepo;
 	    this.scrapers = scrapers;
@@ -58,12 +60,10 @@ public class PriceService {
 	
 	@Cacheable(value = "cheapestPrice", key = "#productId")
 	public Price getCheapestPrice(int productId) {
-		
 		Product product = productRepo.findById(productId)
 			    .orElseThrow(() -> new ProductNotFoundException(productId));
 		log.info("Cache MISS — fetching cheapest price from DB for product " + productId);
 		return priceRepo.findTopByProductOrderByPriceAsc(product);
-		
 	}
 	
 	@Cacheable(value = "latestPrice", key = "#productId")
@@ -72,24 +72,20 @@ public class PriceService {
 			    .orElseThrow(() -> new ProductNotFoundException(productId));
 		log.info("Cache MISS — fetching latest price from DB for product " + productId);
 		return priceRepo.findTopByProductOrderByDateDesc(product);
-		
 	}
 	
 	public Page<Price> getPrice(int productId, int page, int size){
-		
 		Product product = productRepo.findById(productId)
 			    .orElseThrow(() -> new ProductNotFoundException(productId));
 		Pageable pageable = PageRequest.of(page, size);
 		return priceRepo.findByProductOrderByDateDesc(product, pageable);
-		
 	}
 	
 	public void addScraperPrice(int productId) {
-		
 		Product product = productRepo.findById(productId)
 			    .orElseThrow(() -> new ProductNotFoundException(productId));
 	    
-	    log.info("Started Scraping for Product Id {}", productId);;
+	    log.info("Started Scraping for Product Id {}", productId);
 
 	    for (PriceScraper scraper : scrapers) {
 	    	try {
@@ -105,31 +101,39 @@ public class PriceService {
 	    log.info("Completed scraping for product ID: {}", productId);
 	}
 
+	// ✅ Extracted shared method — used by both scheduler and startup
+	public void autoScrapeAllProducts() {
+		List<Product> products = productRepo.findAll(); // removed 20-product limit
+		log.info("Scrape started at {} for {} products", LocalDateTime.now(), products.size());
+
+		for (Product product : products) {
+			try {
+				addScraperPrice(product.getId());
+				log.info("Price updated for product ID: {}", product.getId());
+			} catch (Exception e) {
+				log.error("Failed to update product ID: {}", product.getId(), e);
+			}
+		}
+
+		log.info("Scrape cycle completed at {}", LocalDateTime.now());
+		alertService.checkAndTriggerAlerts();
+	}
+
+	// ✅ Hourly scheduler — now calls shared method
 	@Scheduled(fixedRateString = "${price.scrape.interval}")
 	public void autoScrapePrice() {
+		log.info("Scheduler triggered at {}", LocalDateTime.now());
+		autoScrapeAllProducts();
+	}
 
-		Pageable pageable = PageRequest.of(0,20);
-	    List<Product> products = productRepo.findAll(pageable).getContent();
-
-	    log.info("Scheduler started at {}", LocalDateTime.now());
-	    
-	    for (Product product : products) {
-
-	        try {
-	            addScraperPrice(product.getId());
-	            log.info("Price updated for product ID: " + product.getId());
-
-	        } catch (Exception e) {
-
-	        	log.error("Failed to update product ID: {}", product.getId(), e);
-	        }
-	    }
-	    log.info("Auto scrape cycle completed at {}", LocalDateTime.now());
-	    alertService.checkAndTriggerAlerts();
+	// ✅ Runs once on startup after app is fully ready (products already imported)
+	@EventListener(ApplicationReadyEvent.class)
+	public void scrapeOnStartup() {
+		log.info("Startup price scrape triggered after app ready");
+		autoScrapeAllProducts();
 	}
 	
 	public BuySuggestionResponse getBuySuggestion(int productId) {
-		
 		Product product = productRepo.findById(productId)
 	            .orElseThrow(() -> new ProductNotFoundException(productId));
 
@@ -154,23 +158,16 @@ public class PriceService {
 	    String suggestion;
 	    String reason;
 
-	    
 	    if (currentPrice.compareTo(lowestEver) <= 0) {
 	        suggestion = "BUY NOW";
 	        reason = "Current price is the lowest ever recorded. This is the best price available.";
-	    }
-	    
-	    else if (currentPrice.compareTo(average) < 0) {
+	    } else if (currentPrice.compareTo(average) < 0) {
 	        suggestion = "GOOD TIME TO BUY";
 	        reason = "Current price is below the average price. You are getting a decent deal.";
-	    }
-	    
-	    else if (currentPrice.compareTo(average.multiply(new BigDecimal("1.10"))) <= 0) {
+	    } else if (currentPrice.compareTo(average.multiply(new BigDecimal("1.10"))) <= 0) {
 	        suggestion = "AVERAGE PRICE";
 	        reason = "Current price is close to the average. No urgency either way.";
-	    }
-	    
-	    else {
+	    } else {
 	        suggestion = "WAIT";
 	        reason = "Current price is higher than average. Consider waiting for a better deal.";
 	    }
@@ -183,15 +180,14 @@ public class PriceService {
 	            suggestion,
 	            reason
 	    );
-		
 	}
 
 	public PriceResponse convertToResponse(Price price) {
-		return new PriceResponse(price.getProduct().getName(),
-					price.getWebsite(),
-					price.getPrice(),
-					price.getDate()
-					);
+		return new PriceResponse(
+				price.getProduct().getName(),
+				price.getWebsite(),
+				price.getPrice(),
+				price.getDate()
+		);
 	}
-	
 }
