@@ -26,8 +26,12 @@ public class BookCatalogueImporter {
     public int importAll() {
         int count = 0;
         int page = 1;
-
+        int maxProducts = 50;
         while (true) {
+        	if (count >= maxProducts) {
+                log.info("Reached import limit of {}. Stopping.", maxProducts);
+                break;
+            }
             try {
                 String pageUrl = BASE_URL + "page-" + page + ".html";
                 log.info("Crawling page {}", page);

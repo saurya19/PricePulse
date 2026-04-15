@@ -3,6 +3,8 @@ package tatakae.pricepulse.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,19 +56,25 @@ public class PriceController {
 	
 	@Operation(summary = "Get latest price for a product")
 	@GetMapping("/{productId}/latest")
-	public PriceResponse latestPrices(@PathVariable int productId) {
+	public ResponseEntity<?> latestPrices(@PathVariable int productId) {
 		
 		Price price = priceService.getLatestPrice(productId);
-		return priceService.convertToResponse(price);
+	    if (price == null) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No price data yet for this product");
+	    }
+	    return ResponseEntity.ok(priceService.convertToResponse(price));
 		
 	}
 	
 	@Operation(summary = "Get cheapest ever price for a product")
 	@GetMapping("/{productId}/cheapest")
-	public PriceResponse cheapPrice(@PathVariable int productId) {
+	public ResponseEntity<?> cheapPrice(@PathVariable int productId) {
 		
 		Price price = priceService.getCheapestPrice(productId);
-		return priceService.convertToResponse(price);
+		if (price == null) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No price data yet for this product");
+	    }
+	    return ResponseEntity.ok(priceService.convertToResponse(price));
 		
 	}
 	
