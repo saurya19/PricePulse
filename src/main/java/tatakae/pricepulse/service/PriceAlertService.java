@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import tatakae.pricepulse.dto.PriceAlertRequest;
+import tatakae.pricepulse.exception.AlertAlreadyExistsException;
 import tatakae.pricepulse.exception.ProductNotFoundException;
 import tatakae.pricepulse.model.Price;
 import tatakae.pricepulse.model.PriceAlert;
@@ -40,6 +41,15 @@ public class PriceAlertService {
 	public PriceAlert createPriceAlert(PriceAlertRequest request) {
 		
 		Product product = productRepo.findById(request.getProductId()).orElseThrow(()-> new ProductNotFoundException(request.getProductId()));
+		
+		if (alertRepo.existsByEmailAndProduct(
+		        request.getEmail(),
+		        product)) {
+
+		    throw new AlertAlreadyExistsException(
+		            request.getEmail(),
+		            request.getProductId());
+		}
 		
 		PriceAlert priceAlert = new PriceAlert();
 		priceAlert.setEmail(request.getEmail());

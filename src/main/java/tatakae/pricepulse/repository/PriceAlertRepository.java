@@ -10,4 +10,5 @@ import tatakae.pricepulse.model.Product;
 public interface PriceAlertRepository extends JpaRepository<PriceAlert, Integer>{
 	List<PriceAlert> findByTriggeredFalse();
 	List<PriceAlert> findByProductAndTriggeredFalse(Product product);
+	boolean existsByEmailAndProduct(String email, Product product);
 }
