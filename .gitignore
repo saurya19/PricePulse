@@ -7,4 +7,5 @@ target/
 *.iml
 *.log
 
+# Local Spring configuration
 src/main/resources/application.properties
