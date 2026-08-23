@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import tatakae.pricepulse.exception.ScraperException;
-
+ 
 @Component
 public class JsoupBookScraper implements PriceScraper {
 

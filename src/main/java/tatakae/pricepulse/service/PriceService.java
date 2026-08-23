@@ -98,7 +98,7 @@ public class PriceService {
 	    log.info("Completed scraping for product ID: {}", productId);
 	}
 
-	// ✅ Extracted shared method — used by both scheduler and startup
+	
 	public void autoScrapeAllProducts() {
 		List<Product> products = productRepo.findAll();
 		log.info("Scrape started at {} for {} products", LocalDateTime.now(), products.size());
@@ -116,7 +116,7 @@ public class PriceService {
 		alertService.checkAndTriggerAlerts();
 	}
 
-	// ✅ Hourly scheduler — now calls shared method
+
 	@Scheduled(fixedRateString = "${price.scrape.interval}")
 	public void autoScrapePrice() {
 		log.info("Scheduler triggered at {}", LocalDateTime.now());

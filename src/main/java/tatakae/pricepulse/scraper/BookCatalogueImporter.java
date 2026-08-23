@@ -64,7 +64,7 @@ public class BookCatalogueImporter {
                     }
                 }
 
-                // check if next page exists
+                
                 Element nextButton = doc.select("li.next").first();
                 if (nextButton == null) {
                     log.info("Last page reached. Total imported: {}", count);

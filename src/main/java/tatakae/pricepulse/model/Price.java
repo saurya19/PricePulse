@@ -25,12 +25,16 @@ public class Price implements Serializable{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
+	
 	@NotBlank
 	private String website;
+	
 	@Positive
 	@Column(precision = 10, scale = 2)
 	private BigDecimal price;
+	
 	private LocalDateTime date;
+	
 	@JoinColumn(name="product_id")
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JsonIgnore

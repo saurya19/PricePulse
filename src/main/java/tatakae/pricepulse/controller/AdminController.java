@@ -19,11 +19,11 @@ public class AdminController {
     private static final Logger log = LoggerFactory.getLogger(AdminController.class);
 
     private final BookCatalogueImporter importer;
-    private final PriceService priceService; // ✅ ADD THIS
+    private final PriceService priceService; 
 
-    public AdminController(BookCatalogueImporter importer, PriceService priceService) { // ✅ ADD THIS
+    public AdminController(BookCatalogueImporter importer, PriceService priceService) {
         this.importer = importer;
-        this.priceService = priceService; // ✅ ADD THIS
+        this.priceService = priceService; 
     }
 
     @Operation(summary = "Import full book catalogue from books.toscrape")
@@ -32,7 +32,7 @@ public class AdminController {
         log.info("Manual catalogue import triggered");
         int count = importer.importAll();
         log.info("Import done. Starting price scrape for all products...");
-        priceService.autoScrapeAllProducts(); // ✅ ADD THIS
+        priceService.autoScrapeAllProducts(); 
         return "Import complete. " + count + " books saved. Prices scraped.";
     }
 }
